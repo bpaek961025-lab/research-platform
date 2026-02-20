@@ -316,9 +316,28 @@ h1{font-family:'Crimson Pro',serif;font-size:2.5rem;font-weight:600;color:var(--
 body.is-admin .admin-only { display: inline-flex !important; }
 body.is-admin button.admin-only { display: inline-flex !important; }
 body.is-admin .btn.admin-only { display: inline-flex !important; }
+body.is-admin .add-cat-btn.admin-only { display: block !important; }
+body.is-admin .add-post-btn.admin-only { display: inline-flex !important; }
 /* cat-act-btn (카테고리 수정/삭제) */
 body.is-admin .cat-actions { display: inline-flex !important; }
 .cat-actions { display: none; }
+
+/* ── 비밀번호 화면 ── */
+#pwScreen{position:fixed;top:0;left:0;width:100%;height:100%;background:var(--bg-light);z-index:9999;display:flex;align-items:center;justify-content:center;}
+#pwScreen.hidden{display:none;}
+.pw-box{background:white;border-radius:16px;padding:3rem 2.5rem;max-width:420px;width:90%;box-shadow:0 8px 40px rgba(44,24,16,0.15);text-align:center;}
+.pw-logo{font-family:'Crimson Pro',serif;font-size:2rem;font-weight:600;color:var(--primary);margin-bottom:0.5rem;}
+.pw-sub{color:var(--text-secondary);font-size:0.95rem;margin-bottom:2rem;}
+.pw-input{width:100%;padding:0.9rem 1rem;border:1.5px solid var(--border);border-radius:10px;font-size:1rem;font-family:'Lato',sans-serif;transition:border-color 0.2s;text-align:center;letter-spacing:0.1em;margin-bottom:0.5rem;}
+.pw-input:focus{outline:none;border-color:var(--secondary);}
+.pw-input.error{border-color:#dc3545;animation:pwshake 0.3s ease;}
+@keyframes pwshake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.pw-btn{width:100%;padding:0.9rem;background:var(--primary);color:white;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer;font-family:'Lato',sans-serif;transition:background 0.2s;margin-bottom:0.8rem;}
+.pw-btn:hover{background:var(--secondary);}
+.pw-viewer-btn{width:100%;padding:0.7rem;background:transparent;color:var(--text-secondary);border:1.5px solid var(--border);border-radius:10px;font-size:0.9rem;cursor:pointer;font-family:'Lato',sans-serif;transition:all 0.2s;}
+.pw-viewer-btn:hover{border-color:var(--secondary);color:var(--secondary);}
+.pw-error{color:#dc3545;font-size:0.85rem;margin:0.3rem 0 0.5rem;min-height:1.2em;}
+.mode-badge.viewer{background:#e8f4f8;color:#2980b9;}
 
 /* ── Market / Weekly ── */
 .mkt-card{background:var(--bg-card);border-radius:12px;padding:1.5rem;border:1px solid var(--border);box-shadow:0 2px 8px var(--shadow);}
@@ -507,8 +526,20 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 </script>
 </head>
-<body class="is-admin">
+<body>
 <div class="ra-toast" id="raToast"></div>
+
+<!-- 비밀번호 화면 -->
+<div id="pwScreen">
+  <div class="pw-box">
+    <div class="pw-logo">Research Archive</div>
+    <div class="pw-sub">비밀번호를 입력하거나 뷰어로 입장하세요</div>
+    <input type="password" class="pw-input" id="pwInput" placeholder="비밀번호 입력" />
+    <div class="pw-error" id="pwError"></div>
+    <button class="pw-btn" id="pwSubmit">입장</button>
+    <button class="pw-viewer-btn" id="pwViewer">👁 뷰어로 입장 (읽기 전용)</button>
+  </div>
+</div>
 <!-- Selection Popup -->
 <div class="sel-popup" id="selPopup">
   <button class="sel-btn ai-btn" id="selSumBtn">✦ AI 요약</button>
@@ -582,7 +613,7 @@ const db = firebase.firestore();
     <div id="itemViewBody" style="line-height:1.8;"></div>
     <div id="itemViewLinks" style="display:none;flex-wrap:wrap;gap:8px;padding-bottom:1rem;"></div>
     <div style="display:flex;gap:1rem;padding-top:1.5rem;margin-top:1rem;border-top:1px solid var(--border);">
-      <button class="btn btn-secondary" id="itemViewEditBtn">✎ 수정</button>
+      <button class="btn btn-secondary" id="itemViewEditBtn" class="btn btn-secondary admin-only">✎ 수정</button>
     </div>
   </div>
 </div>
@@ -732,12 +763,12 @@ const db = firebase.firestore();
       <aside class="sidebar">
         <h3 class="sidebar-title">Categories</h3>
         <ul class="cat-list" id="macroCatList"></ul>
-        <button class="add-cat-btn" id="addMacroCatBtn">+ 카테고리 추가</button>
+        <button class="add-cat-btn" id="addMacroCatBtn" class="add-cat-btn admin-only">+ 카테고리 추가</button>
       </aside>
       <div>
         <div class="blog-header">
           <h1>Macro</h1>
-          <button class="add-post-btn" id="addMacroPostBtn">새 글 작성</button>
+          <button class="add-post-btn" id="addMacroPostBtn" class="add-post-btn admin-only">새 글 작성</button>
         </div>
         <div class="posts-grid" id="macroPostsGrid"></div>
       </div>
@@ -750,12 +781,12 @@ const db = firebase.firestore();
       <aside class="sidebar">
         <h3 class="sidebar-title">Categories</h3>
         <ul class="cat-list" id="indicatorCatList"></ul>
-        <button class="add-cat-btn" id="addIndicatorCatBtn">+ 카테고리 추가</button>
+        <button class="add-cat-btn" id="addIndicatorCatBtn" class="add-cat-btn admin-only">+ 카테고리 추가</button>
       </aside>
       <div>
         <div class="blog-header">
           <h1>Indicator</h1>
-          <button class="add-post-btn" id="addIndicatorPostBtn">새 지표 추가</button>
+          <button class="add-post-btn" id="addIndicatorPostBtn" class="add-post-btn admin-only">새 지표 추가</button>
         </div>
         <div class="posts-grid" id="indicatorPostsGrid"></div>
       </div>
@@ -766,7 +797,7 @@ const db = firebase.firestore();
   <section class="section" id="industry">
     <div class="lib-header">
       <h1>Industry Library</h1>
-      <button class="add-post-btn" id="addIndustryBtn">산업 추가</button>
+      <button class="add-post-btn" id="addIndustryBtn" class="add-post-btn admin-only">산업 추가</button>
     </div>
     <div class="lib-grid" id="indGrid"></div>
   </section>
@@ -1076,8 +1107,8 @@ const db = firebase.firestore();
     <div id="postDetailBody" style="line-height:1.8;margin-bottom:1.5rem;"></div>
     <div id="postDetailTags" class="tag-row" style="margin-bottom:1.5rem;"></div>
     <div style="display:flex;gap:1rem;padding-top:1rem;border-top:1px solid var(--border);">
-      <button class="btn btn-secondary" id="postDetailEditBtn">✎ 수정</button>
-      <button class="btn btn-danger" id="postDetailDeleteBtn">삭제</button>
+      <button class="btn btn-secondary" id="postDetailEditBtn" class="btn btn-secondary admin-only">✎ 수정</button>
+      <button class="btn btn-danger" id="postDetailDeleteBtn" class="btn btn-danger admin-only">삭제</button>
     </div>
   </div>
 </div>
@@ -1092,12 +1123,12 @@ const db = firebase.firestore();
     <div class="day-section">
       <h3>일정</h3>
       <div class="day-items" id="dayEventsList"></div>
-      <button class="btn btn-primary" id="addEventBtn">+ 일정 추가</button>
+      <button class="btn btn-primary" id="addEventBtn" class="btn btn-primary admin-only">+ 일정 추가</button>
     </div>
     <div class="day-section">
       <h3>메모</h3>
       <div class="day-items" id="dayNotesList"></div>
-      <button class="btn btn-primary" id="addDayNoteBtn">+ 메모 추가</button>
+      <button class="btn btn-primary" id="addDayNoteBtn" class="btn btn-primary admin-only">+ 메모 추가</button>
     </div>
     <div class="day-section">
       <h3>태그</h3>
@@ -1113,7 +1144,7 @@ const db = firebase.firestore();
     <div class="modal-hd">
       <div style="display:flex;align-items:center;gap:0.8rem;">
         <h2 class="modal-title" id="indDetailTitle"></h2>
-        <button onclick="renameIndustry()" title="이름 수정" style="background:transparent;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:4px 8px;font-size:0.85rem;color:var(--text-secondary);transition:all 0.2s;" onmouseover="this.style.background='var(--bg-light)'" onmouseout="this.style.background='transparent'">✏️</button>
+        <button onclick="renameIndustry()" title="이름 수정" id="renameIndustryBtn" style="background:transparent;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:4px 8px;font-size:0.85rem;color:var(--text-secondary);transition:all 0.2s;" onmouseover="this.style.background='var(--bg-light)'" onmouseout="this.style.background='transparent'">✏️</button>
       </div>
       <button class="modal-close" id="indDetailClose">×</button>
     </div>
@@ -4237,100 +4268,186 @@ var appData = {
 
 
 // ══════════════════════════════════════════════
-// Firestore 실시간 동기화
+// Firestore 섹션별 분리 동기화
 // ══════════════════════════════════════════════
 var _syncEnabled = false;
 var _syncListeners = [];
+var _isAdmin = false;  // 편집 권한 여부
 
-// Firestore에 저장
-function saveToFirestore() {
-  if (!_syncEnabled || typeof db === 'undefined') return;
-  db.collection('research-data').doc('main').set({
-    data: appData,
-    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
-  }).then(function() {
-    console.log('✓ Firestore 저장 완료');
-  }).catch(function(error) {
-    console.error('Firestore 저장 실패:', error);
-  });
-}
-
-// Firestore에서 불러오기
-function loadFromFirestore() {
-  if (typeof db === 'undefined') {
-    console.warn('Firebase 미설정 - 로컬 모드');
-    return;
+// 섹션별 UI 갱신
+function refreshUI(section) {
+  if (section === 'calendar') {
+    renderCalendar();
+    if (selectedDate) renderDayContent();
+  } else if (section === 'macro' || section === 'indicator') {
+    renderCats(section); renderPosts(section);
+  } else if (section === 'industry') {
+    renderIndustries();
   }
-  db.collection('research-data').doc('main').get().then(function(doc) {
-    if (doc.exists) {
-      var remote = doc.data();
-      if (remote.data) {
-        appData = remote.data;
-        console.log('✓ Firestore에서 데이터 로드');
-        // UI 갱신
-        if (currentSection === 'calendar') {
-          renderCalendar();
-          if (selectedDate) renderDayContent();
-        }
-        if (currentSection === 'macro' || currentSection === 'indicator') {
-          renderCats(currentSection);
-          renderPosts(currentSection);
-        }
-        if (currentSection === 'industry') renderIndustries();
+}
+
+// 섹션 하나 저장
+function saveSectionToFirestore(section) {
+  if (!_syncEnabled || !_isAdmin || typeof db === 'undefined') return;
+  var payload = {};
+  if (section === 'calendar')   payload = { data: appData.calendar,  ts: firebase.firestore.FieldValue.serverTimestamp() };
+  if (section === 'macro')      payload = { data: appData.macro,     ts: firebase.firestore.FieldValue.serverTimestamp() };
+  if (section === 'indicator')  payload = { data: appData.indicator, ts: firebase.firestore.FieldValue.serverTimestamp() };
+  if (section === 'industry')   payload = { data: appData.industry,  ts: firebase.firestore.FieldValue.serverTimestamp() };
+  db.collection('research-data').doc(section).set(payload)
+    .then(function(){ console.log('✓ 저장:', section); })
+    .catch(function(e){ console.error('저장 실패:', section, e); });
+}
+
+// 현재 수정 중인 섹션 자동 저장
+function saveToFirestore() {
+  saveSectionToFirestore(currentSection === 'calendar'   ? 'calendar'  :
+                         currentSection === 'macro'      ? 'macro'     :
+                         currentSection === 'indicator'  ? 'indicator' :
+                         currentSection === 'industry'   ? 'industry'  : 'calendar');
+}
+
+// 전체 로드 (앱 시작 시)
+function loadFromFirestore() {
+  if (typeof db === 'undefined') { console.warn('Firebase 미설정'); return; }
+  var sections = ['calendar','macro','indicator','industry'];
+  var loaded = 0;
+  sections.forEach(function(sec) {
+    db.collection('research-data').doc(sec).get().then(function(doc) {
+      if (doc.exists && doc.data().data !== undefined) {
+        appData[sec] = doc.data().data;
+        console.log('✓ 로드:', sec);
+      } else {
+        // 문서 없으면 마이그레이션 시도 (기존 main 문서)
+        db.collection('research-data').doc('main').get().then(function(mainDoc) {
+          if (mainDoc.exists && mainDoc.data().data && mainDoc.data().data[sec]) {
+            appData[sec] = mainDoc.data().data[sec];
+            console.log('✓ 마이그레이션:', sec);
+            if (_isAdmin) saveSectionToFirestore(sec);
+          }
+        });
       }
-    } else {
-      console.log('Firestore 데이터 없음 - 초기 저장');
-      saveToFirestore();
-    }
-  }).catch(function(error) {
-    console.error('Firestore 로드 실패:', error);
+      loaded++;
+      if (loaded === sections.length) {
+        console.log('✓ 전체 로드 완료');
+        refreshUI(currentSection);
+      }
+    }).catch(function(e){ console.error('로드 실패:', sec, e); loaded++; });
   });
 }
 
-// 실시간 리스너 시작
+// 섹션별 실시간 리스너
 function startFirestoreSync() {
   if (typeof db === 'undefined') return;
   _syncEnabled = true;
-  
-  // 리스너 등록
-  var unsubscribe = db.collection('research-data').doc('main').onSnapshot(function(doc) {
-    if (doc.exists && doc.metadata.hasPendingWrites === false) {
-      var remote = doc.data();
-      if (remote.data) {
-        appData = remote.data;
-        console.log('🔄 실시간 동기화: 데이터 업데이트됨');
-        // 현재 화면 갱신
-        if (currentSection === 'calendar') {
-          renderCalendar();
-          if (selectedDate) renderDayContent();
-        }
-        if (currentSection === 'macro' || currentSection === 'indicator') {
-          renderCats(currentSection);
-          renderPosts(currentSection);
-        }
-        if (currentSection === 'industry') renderIndustries();
+  ['calendar','macro','indicator','industry'].forEach(function(sec) {
+    var unsub = db.collection('research-data').doc(sec).onSnapshot(function(doc) {
+      if (!doc.exists || doc.metadata.hasPendingWrites) return;
+      var d = doc.data();
+      if (d && d.data !== undefined) {
+        appData[sec] = d.data;
+        console.log('🔄 실시간 업데이트:', sec);
+        if (currentSection === sec) refreshUI(sec);
+        // calendar는 어느 섹션에서도 갱신
+        if (sec === 'calendar' && currentSection === 'calendar') renderCalendar();
       }
-    }
+    });
+    _syncListeners.push(unsub);
   });
-  _syncListeners.push(unsubscribe);
-  
-  console.log('🔄 실시간 동기화 시작');
+  console.log('🔄 실시간 동기화 시작 (섹션별)');
 }
 
-// 동기화 중지
 function stopFirestoreSync() {
   _syncEnabled = false;
-  _syncListeners.forEach(function(unsub) { unsub(); });
+  _syncListeners.forEach(function(u){ u(); });
   _syncListeners = [];
-  console.log('⏸ 실시간 동기화 중지');
 }
 
-// 자동 저장 트리거 (데이터 변경 시 호출)
+// 자동 저장 트리거
 function triggerAutoSave() {
-  if (_syncEnabled) {
-    clearTimeout(window._autoSaveTimer);
-    window._autoSaveTimer = setTimeout(saveToFirestore, 1000);
+  if (!_syncEnabled || !_isAdmin) return;
+  clearTimeout(window._autoSaveTimer);
+  // 어떤 섹션 데이터가 바뀌었는지 감지해서 해당 섹션만 저장
+  var sec = currentSection;
+  if (['calendar','macro','indicator','industry'].indexOf(sec) === -1) sec = 'calendar';
+  window._autoSaveTimer = setTimeout(function(){ saveSectionToFirestore(sec); }, 1000);
+}
+
+// ── 비밀번호 / 모드 설정 ──────────────────────
+// 비밀번호는 Firestore app-config/settings 문서에 저장됨 (코드에 없음)
+var _loadedPassword = null;
+
+function enterAdmin() {
+  _isAdmin = true;
+  document.body.classList.add('is-admin');
+  var badge = document.getElementById('modeBadge');
+  if (badge) { badge.textContent = 'ADMIN'; badge.className = 'mode-badge admin'; }
+}
+
+function enterViewer() {
+  _isAdmin = false;
+  document.body.classList.remove('is-admin');
+  var badge = document.getElementById('modeBadge');
+  if (badge) { badge.textContent = 'VIEWER'; badge.className = 'mode-badge viewer'; }
+}
+
+function initPasswordScreen() {
+  var screen = document.getElementById('pwScreen');
+  var input  = document.getElementById('pwInput');
+  var submit = document.getElementById('pwSubmit');
+  var viewer = document.getElementById('pwViewer');
+  var error  = document.getElementById('pwError');
+
+  // Firestore에서 비밀번호 로드
+  function loadPassword(callback) {
+    if (_loadedPassword !== null) { callback(); return; }
+    if (typeof db === 'undefined') { callback(); return; }
+    db.collection('app-config').doc('settings').get()
+      .then(function(doc) {
+        if (doc.exists && doc.data().password) {
+          _loadedPassword = doc.data().password;
+        } else {
+          // 문서가 없으면 기본 비밀번호로 초기화
+          _loadedPassword = 'research2024';
+          db.collection('app-config').doc('settings').set({ password: 'research2024' });
+          console.log('✓ 기본 비밀번호 생성 완료. Firebase Console에서 변경하세요.');
+        }
+        callback();
+      })
+      .catch(function() {
+        _loadedPassword = 'research2024'; // 오류 시 기본값
+        callback();
+      });
   }
+
+  function tryEnter() {
+    if (!_loadedPassword) {
+      error.textContent = '비밀번호를 불러오는 중입니다...';
+      return;
+    }
+    if (input.value === _loadedPassword) {
+      screen.classList.add('hidden');
+      enterAdmin();
+    } else {
+      error.textContent = '비밀번호가 틀렸습니다.';
+      input.classList.add('error');
+      setTimeout(function(){ input.classList.remove('error'); }, 400);
+    }
+  }
+
+  submit.onclick = tryEnter;
+  input.onkeydown = function(e){ if (e.key === 'Enter') tryEnter(); };
+  viewer.onclick = function() {
+    screen.classList.add('hidden');
+    enterViewer();
+  };
+
+  // 비밀번호 미리 로드
+  loadPassword(function() {
+    console.log('✓ 비밀번호 로드 완료');
+  });
+
+  setTimeout(function(){ input.focus(); }, 100);
 }
 
 
@@ -4850,7 +4967,7 @@ function saveDayItem() {
   closeDayItemModal();
   renderDayContent();
   renderCalendar();
-  triggerAutoSave();
+  saveSectionToFirestore('calendar');
 }
 
 // ═══════════════════════════════════════════
@@ -4922,9 +5039,12 @@ function renderDayContent() {
     var sp = document.createElement('span'); sp.style.flex = '1';
     var tHtml = gTg(item.ev).map(function(t){ return '<span class="tag" style="font-size:.72rem;margin-left:4px;">'+t+'</span>'; }).join('');
     sp.innerHTML = '<strong>' + gT(item.ev) + '</strong>' + tHtml;
-    var btn = document.createElement('button'); btn.className = 'icon-btn'; btn.textContent = '×';
-    btn.onclick = (function(idx){ return function(){ removeDayItem('events', idx); }; })(item.i);
-    row.appendChild(sp); row.appendChild(btn); evEl.appendChild(row);
+    if (_isAdmin) {
+      var btn = document.createElement('button'); btn.className = 'icon-btn'; btn.textContent = '×';
+      btn.onclick = (function(idx){ return function(){ removeDayItem('events', idx); }; })(item.i);
+      row.appendChild(btn);
+    }
+    row.insertBefore(sp, row.firstChild); evEl.appendChild(row);
   });
 
   var ntEl = document.getElementById('dayNotesList'); ntEl.innerHTML = '';
@@ -4933,16 +5053,21 @@ function renderDayContent() {
     var sp = document.createElement('span'); sp.style.flex = '1';
     var tHtml = gTg(nt).map(function(t){ return '<span class="tag" style="font-size:.72rem;margin-left:4px;">'+t+'</span>'; }).join('');
     sp.innerHTML = gT(nt) + tHtml;
-    var btn = document.createElement('button'); btn.className = 'icon-btn'; btn.textContent = '×';
-    btn.onclick = (function(idx){ return function(){ removeDayItem('notes', idx); }; })(i);
-    row.appendChild(sp); row.appendChild(btn); ntEl.appendChild(row);
+    if (_isAdmin) {
+      var btn = document.createElement('button'); btn.className = 'icon-btn'; btn.textContent = '×';
+      btn.onclick = (function(idx){ return function(){ removeDayItem('notes', idx); }; })(i);
+      row.appendChild(btn);
+    }
+    row.insertBefore(sp, row.firstChild); ntEl.appendChild(row);
   });
 
   var tgEl = document.getElementById('dayTagsRow'); if (!tgEl) return; tgEl.innerHTML = '';
   (dd.tags || []).forEach(function(tg, i) {
     var s = document.createElement('span'); s.className = 'tag'; s.textContent = tg;
-    s.style.cursor = 'pointer';
-    s.onclick = (function(idx){ return function(){ removeDayItem('tags', idx); }; })(i);
+    if (_isAdmin) {
+      s.style.cursor = 'pointer';
+      s.onclick = (function(idx){ return function(){ removeDayItem('tags', idx); }; })(i);
+    }
     tgEl.appendChild(s);
   });
 }
@@ -4953,7 +5078,7 @@ function removeDayItem(type, idx) {
   var d = appData.calendar[selectedDate];
   if (!d.events.length && !d.notes.length && !d.tags.length) delete appData.calendar[selectedDate];
   renderDayContent(); renderCalendar();
-  triggerAutoSave();
+  saveSectionToFirestore('calendar');
 }
 
 function onDayTagKey(e) {
@@ -4965,7 +5090,7 @@ function onDayTagKey(e) {
   appData.calendar[selectedDate].tags.push(v);
   document.getElementById('dayTagInput').value = '';
   renderDayContent(); renderCalendar();
-  triggerAutoSave();
+  saveSectionToFirestore('calendar');
 }
 
 // ═══════════════════════════════════════════
@@ -4979,7 +5104,7 @@ function renderCats(sec) {
     var li = document.createElement('li'); li.className = 'cat-item';
     var nameSpan = document.createElement('span'); nameSpan.className = 'cat-name'; nameSpan.textContent = cat;
     li.appendChild(nameSpan);
-    if (cat !== '전체보기' && cat !== '미분류') {
+    if (cat !== '전체보기' && cat !== '미분류' && _isAdmin) {
       var acts = document.createElement('span'); acts.className = 'cat-actions';
       acts.style.cssText = 'display:inline-flex;gap:2px;';
       var rBtn = document.createElement('button'); rBtn.className = 'cat-act-btn'; rBtn.textContent = '✎'; rBtn.title = '이름 변경';
@@ -5004,7 +5129,7 @@ function addCat(sec) {
   var t = name.trim();
   if (appData[sec].categories.includes(t)) { alert('이미 존재합니다.'); return; }
   appData[sec].categories.push(t); renderCats(sec);
-  triggerAutoSave();
+  saveSectionToFirestore(currentPostSec || currentSection);
 }
 
 function renameCat(sec, idx) {
@@ -5014,7 +5139,7 @@ function renameCat(sec, idx) {
   appData[sec].categories[idx] = t;
   appData[sec].posts.forEach(function(p){ if (p.category === old) p.category = t; });
   renderCats(sec); renderPosts(sec);
-  triggerAutoSave();
+  saveSectionToFirestore(currentPostSec || currentSection);
 }
 
 function deleteCat(sec, idx) {
@@ -5023,7 +5148,7 @@ function deleteCat(sec, idx) {
   appData[sec].categories.splice(idx, 1);
   appData[sec].posts.forEach(function(p){ if (p.category === name) p.category = '미분류'; });
   renderCats(sec); renderPosts(sec);
-  triggerAutoSave();
+  saveSectionToFirestore(currentPostSec || currentSection);
 }
 
 function filterPosts(sec, cat) {
@@ -5106,7 +5231,7 @@ function savePost(e) {
       date: new Date().toISOString().slice(0,10), createdAt: now, updatedAt: now, content: content, tags: tags });
   }
   renderCats(currentPostSec); renderPosts(currentPostSec); closePostModal(); closePostDetail();
-  triggerAutoSave();
+  saveSectionToFirestore(currentPostSec || currentSection);
 }
 
 function openPostDetail(post, sec) {
@@ -5127,7 +5252,7 @@ function onPostDetailDelete() {
   if (!confirm('"' + viewingPost.title + '" 삭제?')) return;
   appData[viewingSection].posts = appData[viewingSection].posts.filter(function(p){ return p.id !== viewingPost.id; });
   renderPosts(viewingSection); closePostDetail();
-  triggerAutoSave();
+  saveSectionToFirestore(currentPostSec || currentSection);
 }
 
 // ═══════════════════════════════════════════
@@ -5156,7 +5281,7 @@ function renameIndustry() {
   currentIndustry.name = newName.trim();
   document.getElementById('indDetailTitle').textContent = currentIndustry.name;
   renderIndustries();
-  triggerAutoSave();
+  saveSectionToFirestore('industry');
 }
 
 function addIndustry() {
@@ -5164,13 +5289,15 @@ function addIndustry() {
   appData.industry.industries.push({ id: 'ind' + Date.now(), name: name.trim(),
     description: '새로운 산업 분야', terms:[], companies:[], notes:[] });
   renderIndustries();
-  triggerAutoSave();
+  saveSectionToFirestore('industry');
 }
 
 function openIndDetail(id) {
   currentIndustry = appData.industry.industries.find(function(i){ return i.id === id; });
   if (!currentIndustry) return;
   document.getElementById('indDetailTitle').textContent = currentIndustry.name;
+  var rb = document.getElementById('renameIndustryBtn');
+  if (rb) rb.style.display = _isAdmin ? '' : 'none';
   updateIndCounts();
   document.getElementById('indDetailModal').classList.add('active');
   showIndSection('terms');
@@ -5197,6 +5324,7 @@ function showIndSection(type) {
     addBtn.style.marginTop = '1rem';
     addBtn.textContent = type === 'terms' ? '+ 용어 추가' : '+ 기업 추가';
     addBtn.onclick = function() { openItemEdit(type, null); };
+    if (!_isAdmin) addBtn.style.display = 'none';
 
     arr.forEach(function(item, idx) {
       var card = document.createElement('div'); card.className = 'item-card'; card.style.cursor = 'pointer';
@@ -5208,14 +5336,17 @@ function showIndSection(type) {
         (stripped ? '<div class="item-desc">' + stripped + '…</div>' : '') +
         (tagsHtml ? '<div class="tag-row" style="margin-top:.3rem;">' + tagsHtml + '</div>' : '');
       var ad = document.createElement('div'); ad.className = 'item-actions';
-      var eb = document.createElement('button'); eb.className = 'icon-btn'; eb.textContent = '✎'; eb.title = '수정';
-      var db = document.createElement('button'); db.className = 'icon-btn'; db.textContent = '×'; db.title = '삭제';
-      eb.onclick = (function(i, t){ return function(e){ e.stopPropagation(); openItemEdit(t, i); }; })(idx, type);
-      db.onclick = (function(i, t){ return function(e){ e.stopPropagation(); deleteIndItem(t, i); }; })(idx, type);
-      if (type === 'companies') {
-        var mb = document.createElement('button'); mb.className = 'icon-btn'; mb.textContent = '↔'; mb.title = '산업 이동';
-        mb.onclick = (function(i){ return function(e){ e.stopPropagation(); openMoveCompanyModal(i); }; })(idx);
-        ad.appendChild(mb);
+      if (_isAdmin) {
+        var eb = document.createElement('button'); eb.className = 'icon-btn'; eb.textContent = '✎'; eb.title = '수정';
+        var db = document.createElement('button'); db.className = 'icon-btn'; db.textContent = '×'; db.title = '삭제';
+        eb.onclick = (function(i, t){ return function(e){ e.stopPropagation(); openItemEdit(t, i); }; })(idx, type);
+        db.onclick = (function(i, t){ return function(e){ e.stopPropagation(); deleteIndItem(t, i); }; })(idx, type);
+        ad.appendChild(eb); ad.appendChild(db);
+        if (type === 'companies') {
+          var mb = document.createElement('button'); mb.className = 'icon-btn'; mb.textContent = '↔'; mb.title = '산업 이동';
+          mb.onclick = (function(i){ return function(e){ e.stopPropagation(); openMoveCompanyModal(i); }; })(idx);
+          ad.appendChild(mb);
+        }
       }
       // 클릭 이벤트: 모바일은 더블탭, 데스크톱은 싱글클릭
       (function(i, t, c) {
@@ -5251,7 +5382,7 @@ function showIndSection(type) {
           };
         }
       })(idx, type, card);
-      ad.appendChild(eb); ad.appendChild(db); card.appendChild(cd); card.appendChild(ad); listEl.appendChild(card);
+      card.appendChild(cd); card.appendChild(ad); listEl.appendChild(card);
     });
 
     // Sortable: 모바일에서 비활성화
@@ -5268,6 +5399,7 @@ function showIndSection(type) {
     var addN = document.createElement('button'); addN.className = 'btn btn-primary';
     addN.style.marginTop = '1rem'; addN.textContent = '+ 메모 추가';
     addN.onclick = function() { openNoteEdit(null); };
+    if (!_isAdmin) addN.style.display = 'none';
 
     currentIndustry.notes.forEach(function(note, idx) {
       var card = document.createElement('div'); card.className = 'item-card'; card.style.cursor = 'pointer';
@@ -5279,10 +5411,12 @@ function showIndSection(type) {
         (preview ? '<div class="item-desc">' + preview + (preview.length >= 80 ? '…' : '') + '</div>' : '') +
         (tagsHtml ? '<div class="tag-row" style="margin-top:.3rem;">' + tagsHtml + '</div>' : '');
       var ad = document.createElement('div'); ad.className = 'item-actions';
-      var eb = document.createElement('button'); eb.className = 'icon-btn'; eb.textContent = '✎'; eb.title = '수정';
-      var db = document.createElement('button'); db.className = 'icon-btn'; db.textContent = '×'; db.title = '삭제';
-      eb.onclick = (function(i){ return function(e){ e.stopPropagation(); openNoteEdit(i); }; })(idx);
-      db.onclick = (function(i){ return function(e){ e.stopPropagation(); deleteIndItem('notes', i); }; })(idx);
+      if (_isAdmin) {
+        var eb = document.createElement('button'); eb.className = 'icon-btn'; eb.textContent = '✎'; eb.title = '수정';
+        var db = document.createElement('button'); db.className = 'icon-btn'; db.textContent = '×'; db.title = '삭제';
+        eb.onclick = (function(i){ return function(e){ e.stopPropagation(); openNoteEdit(i); }; })(idx);
+        db.onclick = (function(i){ return function(e){ e.stopPropagation(); deleteIndItem('notes', i); }; })(idx);
+        }
       // 클릭 이벤트: 모바일은 더블탭, 데스크톱은 싱글클릭
       (function(i, c) {
         var isMobile = window.innerWidth <= 768;
@@ -5312,7 +5446,7 @@ function showIndSection(type) {
           };
         }
       })(idx, card);
-      ad.appendChild(eb); ad.appendChild(db); card.appendChild(cd); card.appendChild(ad); listN.appendChild(card);
+      card.appendChild(cd); card.appendChild(ad); listN.appendChild(card);
     });
 
     wrap.appendChild(h3n); wrap.appendChild(listN); wrap.appendChild(addN);
@@ -5384,7 +5518,7 @@ function deleteIndItem(type, idx) {
   else if (type === 'companies') currentIndustry.companies.splice(idx, 1);
   else currentIndustry.notes.splice(idx, 1);
   showIndSection(type); updateIndCounts();
-  triggerAutoSave();
+  saveSectionToFirestore('industry');
 }
 
 // ── Item Edit (용어 / 기업) ───────────────
@@ -5482,7 +5616,7 @@ function executeMoveCompany() {
   showIndSection('companies');
   updateIndCounts();
   closeMoveCompanyModal();
-  triggerAutoSave();
+  saveSectionToFirestore('industry');
 }
 
 function saveItem(e) {
@@ -5500,7 +5634,7 @@ function saveItem(e) {
     showIndSection('companies');
   }
   updateIndCounts(); closeItemEdit();
-  triggerAutoSave();
+  saveSectionToFirestore('industry');
 }
 
 // ── Note Edit (메모) ──────────────────────
@@ -5527,7 +5661,7 @@ function saveNote() {
   if (editingNoteIdx !== null) currentIndustry.notes[editingNoteIdx] = obj;
   else currentIndustry.notes.push(obj);
   closeNoteEdit(); showIndSection('notes'); updateIndCounts();
-  triggerAutoSave();
+  saveSectionToFirestore('industry');
 }
 
 // ── Weekly tab 전환 ──────────────────────────
@@ -5777,10 +5911,8 @@ function closeAll() {
 // INIT
 // ═══════════════════════════════════════════
 function init() {
-  // 항상 Admin 모드
-  document.body.classList.add('is-admin');
-  var _badge = document.getElementById('modeBadge');
-  if (_badge) { _badge.textContent = 'ADMIN'; _badge.className = 'mode-badge admin'; }
+  // 비밀번호 화면 초기화
+  initPasswordScreen();
 
 
   // Selection Popup
