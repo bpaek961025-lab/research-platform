@@ -1111,7 +1111,10 @@ const db = firebase.firestore();
 <div class="modal" id="indDetailModal">
   <div class="modal-box" style="max-width:1000px;">
     <div class="modal-hd">
-      <h2 class="modal-title" id="indDetailTitle"></h2>
+      <div style="display:flex;align-items:center;gap:0.8rem;">
+        <h2 class="modal-title" id="indDetailTitle"></h2>
+        <button onclick="renameIndustry()" title="이름 수정" style="background:transparent;border:1px solid var(--border);border-radius:6px;cursor:pointer;padding:4px 8px;font-size:0.85rem;color:var(--text-secondary);transition:all 0.2s;" onmouseover="this.style.background='var(--bg-light)'" onmouseout="this.style.background='transparent'">✏️</button>
+      </div>
       <button class="modal-close" id="indDetailClose">×</button>
     </div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:2rem;">
@@ -4841,6 +4844,7 @@ function saveDayItem() {
   closeDayItemModal();
   renderDayContent();
   renderCalendar();
+  triggerAutoSave();
 }
 
 // ═══════════════════════════════════════════
@@ -4943,6 +4947,7 @@ function removeDayItem(type, idx) {
   var d = appData.calendar[selectedDate];
   if (!d.events.length && !d.notes.length && !d.tags.length) delete appData.calendar[selectedDate];
   renderDayContent(); renderCalendar();
+  triggerAutoSave();
 }
 
 function onDayTagKey(e) {
@@ -4954,6 +4959,7 @@ function onDayTagKey(e) {
   appData.calendar[selectedDate].tags.push(v);
   document.getElementById('dayTagInput').value = '';
   renderDayContent(); renderCalendar();
+  triggerAutoSave();
 }
 
 // ═══════════════════════════════════════════
@@ -5094,6 +5100,7 @@ function savePost(e) {
       date: new Date().toISOString().slice(0,10), createdAt: now, updatedAt: now, content: content, tags: tags });
   }
   renderCats(currentPostSec); renderPosts(currentPostSec); closePostModal(); closePostDetail();
+  triggerAutoSave();
 }
 
 function openPostDetail(post, sec) {
@@ -5114,6 +5121,7 @@ function onPostDetailDelete() {
   if (!confirm('"' + viewingPost.title + '" 삭제?')) return;
   appData[viewingSection].posts = appData[viewingSection].posts.filter(function(p){ return p.id !== viewingPost.id; });
   renderPosts(viewingSection); closePostDetail();
+  triggerAutoSave();
 }
 
 // ═══════════════════════════════════════════
@@ -5133,6 +5141,16 @@ function renderIndustries() {
     card.onclick = (function(id){ return function(){ openIndDetail(id); }; })(ind.id);
     grid.appendChild(card);
   });
+}
+
+function renameIndustry() {
+  if (!currentIndustry) return;
+  var newName = prompt('산업 이름 수정:', currentIndustry.name);
+  if (!newName || !newName.trim() || newName.trim() === currentIndustry.name) return;
+  currentIndustry.name = newName.trim();
+  document.getElementById('indDetailTitle').textContent = currentIndustry.name;
+  renderIndustries();
+  triggerAutoSave();
 }
 
 function addIndustry() {
@@ -5458,6 +5476,7 @@ function executeMoveCompany() {
   showIndSection('companies');
   updateIndCounts();
   closeMoveCompanyModal();
+  triggerAutoSave();
 }
 
 function saveItem(e) {
