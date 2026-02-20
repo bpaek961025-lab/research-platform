@@ -4268,7 +4268,10 @@ function loadFromFirestore() {
         appData = remote.data;
         console.log('✓ Firestore에서 데이터 로드');
         // UI 갱신
-        if (currentSection === 'calendar' && selectedDate) renderDayEvents();
+        if (currentSection === 'calendar') {
+          renderCalendar();
+          if (selectedDate) renderDayContent();
+        }
         if (currentSection === 'macro' || currentSection === 'indicator') {
           renderCats(currentSection);
           renderPosts(currentSection);
@@ -4297,7 +4300,10 @@ function startFirestoreSync() {
         appData = remote.data;
         console.log('🔄 실시간 동기화: 데이터 업데이트됨');
         // 현재 화면 갱신
-        if (currentSection === 'calendar' && selectedDate) renderDayEvents();
+        if (currentSection === 'calendar') {
+          renderCalendar();
+          if (selectedDate) renderDayContent();
+        }
         if (currentSection === 'macro' || currentSection === 'indicator') {
           renderCats(currentSection);
           renderPosts(currentSection);
